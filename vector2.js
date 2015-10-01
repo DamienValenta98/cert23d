@@ -1,0 +1,35 @@
+var Vector2 = function()
+{
+	this.x = 0;
+	this.y = 0;
+}
+
+Vector2.prototype.set = function(_x, _y)
+{
+	this.x = _x;
+	this.y = _y;
+
+}
+
+Vector2.prototype.add = function(other)
+{	
+	if (typeof(other) == typeof(this))
+	{
+		this.x += other.x;
+		this.y += other.y;
+	}
+	return null;
+}
+
+Vector2.prototype.minus = function(other)
+{
+	this.x -= other.x;
+	this.y -= other.y;
+}
+
+Vector2.prototype.multiply = function(other)
+{
+	this.x *= scalar;
+	this.y *= scalar;
+	return this;
+}
