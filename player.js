@@ -142,7 +142,17 @@ Player.prototype.update = function(deltaTime)
 	var jump = false;
 	var idle = false;
 	
-
+	
+	if((this.x >= MAP.tw * TILE - TILE * 4) && (this.y >= MAP.th * TILE - TILE * 4))
+		{
+		gameState = STATE_GAMEWIN;
+		return;
+		}
+	
+	if(this.lives == 0)
+	{
+		gameState = STATE_GAMEOVER;
+	}
 
 	
 	if (keyboard.isKeyDown(keyboard.KEY_LEFT))

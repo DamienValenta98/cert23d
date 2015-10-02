@@ -4,11 +4,31 @@ var context = canvas.getContext("2d");
 var bg = document.createElement("img");
 bg.src = "bg.jpg"
 
+var background	= document.createElement("img");
+background.src = "background.jpg"
+
+var win_background	= document.createElement("img");
+win_background.src = "background.jpg"
+
+var death_background	= document.createElement("img");
+death_background.src = "background.jpg"
+
+
+
 var startFrameMillis = Date.now();
 var endFrameMillis = Date.now();
 
 var heart = document.createElement("img");
 heart.src = "heart.png"
+
+var STATE_SPLASH = 0;
+var STATE_GAME = 1;
+var STATE_GAMEOVER = 2;
+var STATE_GAMEWIN = 3;
+var splashTimer = 4;
+var gameState = STATE_SPLASH;
+
+
 
 var score = 0;
 var lives = 3;
@@ -36,6 +56,153 @@ function lose();
 	context.fillText(youlose, SCREEN_WIDTH - 170, 35);
 }
 */
+
+
+function runSplash(deltaTime)
+{
+	context.fillStyle = "#ccc";		
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(background, 0, 0, canvas.width, canvas.height)
+	
+	context.fillStyle = "#ccc";
+	context.font = "24px Arial";
+	context.fillText("Lets do this!", 220, 200);
+	
+	context.font = "17px Arial";
+	context.fillText("Press Enter To PLAY!", 216, 250);
+	
+	if(keyboard.isKeyDown(keyboard.KEY_ENTER) && (gameState == STATE_SPLASH))
+	{
+		gameState = STATE_GAME;
+		return;
+	}
+}
+
+function runGame(deltaTime)
+{
+	for(var i=0; i < enemies.length; i++)
+	{
+		enemies[i].update(deltaTime);
+	}
+	
+	//lives
+	for (var i = 0; i < lives; i++)
+	{
+		context.drawImage(heart, 20 + ((heart.width+2)*i),10);
+	}
+	if(this.lives < 0)
+	{
+		this.x = this.respawn_x;
+		this.y = this.respawn_y;
+		this.lives --;
+	}
+		
+	
+	context.fillStyle = "#ccc";
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(bg, 0, 0, canvas.width, canvas.height);
+	
+	var wanted_cam_x;
+	var wanted_cam_y;
+	
+	wanted_cam_x = player.x - SCREEN_WIDTH/2;
+	wanted_cam_y = player.y - SCREEN_HEIGHT/2;
+	
+	if(wanted_cam_x < 0)
+		wanted_cam_x = 0;
+	if(wanted_cam_y < 0)
+		wanted_cam_y = 0;
+	
+	if(wanted_cam_x > MAP.tw * TILE - SCREEN_WIDTH)
+		wanted_cam_x = MAP.tw * TILE - SCREEN_WIDTH;
+	if(wanted_cam_y  > MAP.th * TILE - SCREEN_HEIGHT)
+		wanted_cam_y = MAP.th * TILE - SCREEN_HEIGHT;
+	
+	cam_x = Math.floor(lerp(0.5, cam_x, wanted_cam_x));
+	cam_y = Math.floor(lerp(0.5, cam_y, wanted_cam_y));
+	
+	drawMap(cam_x, cam_y);
+	
+	
+	player.update(deltaTime);
+	player.draw(cam_x, cam_y);
+	
+	/*
+	for(var i=0; i < enemies.length; i++)
+	{
+		enemies[i].draw(cam_x, cam_y);
+	}
+	*/
+	
+	example_emitter.update(deltaTime);
+		example_emitter.draw(cam_x, cam_y);
+	
+		// update the frame counter
+	fpsTime += deltaTime;
+	fpsCount++;
+	if(fpsTime >= 1)
+	{
+		fpsTime -= 1;
+		fps = fpsCount;
+		fpsCount = 0;
+	}
+	
+	// draw the FPS
+	context.fillStyle = "#f00";
+	context.font="14px Arial";
+	context.fillText("FPS: " + fps, 5, 20, 100);
+}
+
+function runGameOver(deltaTime)
+{
+	context.fillStyle = "#ccc";		
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(death_background, 0, 0, canvas.width, canvas.height)
+	
+	context.font = "40px Arial";
+	context.fillStyle = "white";
+	context.fillText("GAME OVER", 200, 200);
+	
+	context.font = "20px Arial";
+	context.fillStyle = "white";
+	context.fillText("You got wrecked!", 230, 220);
+	
+	context.font = "15px Arial";
+	context.fillStyle = "white";
+	context.fillText("Press R to Restart", 260, 250);
+	
+	if(keyboard.isKeyDown(keyboard.KEY_R) && (gameState == STATE_GAMEOVER))
+		{
+			gameState = STATE_GAME;
+			player.isDead = false;
+			player.lives = 4;
+			return;
+		}
+}
+
+function runGameWin(deltaTime)
+{
+	context.fillStyle = "#ccc";		
+	context.fillRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(win_background, 0, 0, canvas.width, canvas.height)
+	
+	context.font = "40px Arial";
+	context.fillStyle = "white";
+	context.fillText("You won!", 240, 200);
+	
+	context.font = "15px Arial";
+	context.fillStyle = "white";
+	context.fillText("Press R to Restart", 260, 250);
+	
+	if(keyboard.isKeyDown(keyboard.KEY_R) && (gameState == STATE_GAMEWIN))
+		{
+			gameState = STATE_GAME;
+			player.isDead = false;
+			player.lives = 4;
+			return;
+		}
+}
+
 
 
 function lerp(value, min, max)
@@ -148,82 +315,45 @@ example_emitter.initialize(200, 200, 1, 0, 3000,  0.5, 100, 0.5, true);
 function run()
 {
 	
-	for(var i=0; i < enemies.length; i++)
-	{
-		enemies[i].update(deltaTime);
-	}
-	
-	//lives
-	for (var i = 0; i < lives; i++)
-	{
-		context.drawImage(heart, 20 + ((heart.width+2)*i),10);
-	}
-	if(this.lives < 0)
-	{
-		this.x = this.respawn_x;
-		this.y = this.respawn_y;
-		this.lives --;
-	}
-		
-	
-	context.fillStyle = "#ccc";
-	context.fillRect(0, 0, canvas.width, canvas.height);
-	context.drawImage(bg, 0, 0, canvas.width, canvas.height);
-	
-	var wanted_cam_x;
-	var wanted_cam_y;
-	
 	var deltaTime = getDeltaTime();
 	
-	wanted_cam_x = player.x - SCREEN_WIDTH/2;
-	wanted_cam_y = player.y - SCREEN_HEIGHT/2;
-	
-	if(wanted_cam_x < 0)
-		wanted_cam_x = 0;
-	if(wanted_cam_y < 0)
-		wanted_cam_y = 0;
-	
-	if(wanted_cam_x > MAP.tw * TILE - SCREEN_WIDTH)
-		wanted_cam_x = MAP.tw * TILE - SCREEN_WIDTH;
-	if(wanted_cam_y  > MAP.th * TILE - SCREEN_HEIGHT)
-		wanted_cam_y = MAP.th * TILE - SCREEN_HEIGHT;
-	
-	cam_x = Math.floor(lerp(0.5, cam_x, wanted_cam_x));
-	cam_y = Math.floor(lerp(0.5, cam_y, wanted_cam_y));
-	
-	drawMap(cam_x, cam_y);
-	
-	
-	player.update(deltaTime);
-	player.draw(cam_x, cam_y);
-	
-	/*
-	for(var i=0; i < enemies.length; i++)
+	switch(gameState)
 	{
-		enemies[i].draw(cam_x, cam_y);
-	}
-	*/
-	
-	example_emitter.update(deltaTime);
-		example_emitter.draw(cam_x, cam_y);
-	
-		// update the frame counter
-	fpsTime += deltaTime;
-	fpsCount++;
-	if(fpsTime >= 1)
-	{
-		fpsTime -= 1;
-		fps = fpsCount;
-		fpsCount = 0;
+		case STATE_SPLASH:
+			runSplash(deltaTime);
+			break;
+		case STATE_GAME:
+			runGame(deltaTime);
+			break;
+		case STATE_GAMEOVER:
+			runGameOver(deltaTime);
+			break;
+		case STATE_GAMEWIN:
+			runGameWin(deltaTime);
+			break;
 	}
 	
-	// draw the FPS
-	context.fillStyle = "#f00";
-	context.font="14px Arial";
-	context.fillText("FPS: " + fps, 5, 20, 100);
 }
 
+function update() 
+{ 
 
+   if(this.lives < 1){
+	   this.x = this.respawn_x;
+	this.y = this.respawn_y;
+	this.lives --; 
+   }
+}
+
+function restart()
+{
+
+  if(this.lives = 1); 
+  {
+    restart();
+    return;
+  }
+}
 
 (function() {
   var onEachFrame;
