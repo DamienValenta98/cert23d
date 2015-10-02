@@ -362,6 +362,7 @@ Player.prototype.update = function(deltaTime)
 		this.y = this.respawn_y;
 		this.lives --;
 	}
+
 }
 Player.prototype.draw = function(_cam_x, _cam_y)
 {

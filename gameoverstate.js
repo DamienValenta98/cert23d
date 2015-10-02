@@ -10,9 +10,15 @@ GameOverState.prototype.load = function()
 
 GameOverState.prototype.unload = function() 
 {
-
+	/*
+	if(Player.lives < 0)
+	{
+		this.x = this.respawn_x;
+		this.y = this.respawn_y;
+		this.lives --;
+	}
 }
-
+*/
 GameOverState.prototype.update = function(dt) 
 {
 }

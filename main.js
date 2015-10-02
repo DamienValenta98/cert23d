@@ -26,6 +26,16 @@ var LAYER_LADDERS = 2;
 var LAYER_OBJECT_ENEMIES = 3;
 var LAYER_OBJECT_TRIGGERS = 4;
 
+var GAME_OVER;
+/*
+function lose();
+{
+	context.fillStyle = "yellow";
+	context.font="32px Arial";
+	var youlose = "GAME OVER";
+	context.fillText(youlose, SCREEN_WIDTH - 170, 35);
+}
+*/
 
 
 function lerp(value, min, max)
