@@ -21,7 +21,7 @@ var ANIM_SHOOTWALK_LEFT = 4;
 var ANIM_IDLE_RIGHT = 5;
 var ANIM_JUMP_RIGHT = 6;
 var ANIM_WALK_RIGHT = 7;
-var ANIM_SHOOT_RIGHT = 8
+var ANIM_SHOOT_RIGHT = 8;
 var ANIM_SHOOTWALK_RIGHT = 9;
 
 var ANIM_MAX = 10;
@@ -60,7 +60,7 @@ var Player = function()
 	[65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78]);
 	//shoot right
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
-	[63]);
+	[80]);
 	//shoot walk right
 	this.sprite.buildAnimation(12, 8, 165, 126, 0.05,
 	[79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93]);
@@ -183,18 +183,52 @@ Player.prototype.update = function(deltaTime)
 		if(right == true)
 			this.sprite.setAnimation(ANIM_JUMP_RIGHT);
 	}
-	if (keyboard.isKeyDown(keyboard.KEY_SHIFT))
+	if (keyboard.isKeyDown(keyboard.KEY_A))
 	{
-		if(left == true)
+		if(left == false)
+		{
+			this.direction == LEFT
+			this.sprite.setAnimation(ANIM_SHOOT_LEFT);
+		}	
+		else if(left == true)
 		{
 			this.direction == LEFT
 			this.sprite.setAnimation(ANIM_SHOOTWALK_LEFT);
+		}	
+		if(this.shoot_cooldown <= 0)
+		{
+			if(!this.is_shoot_sfx_playing)
+			{
+				this.shoot_sfx
+				this.shoot_sfx.play();
+				this.is_shoot_sfx_playing = true;
+			}
+			var jitter = Math.random() * 0.2 - 0.1;
+			if(this.direction == LEFT)	
+				this.bullets[this.cur_bullet_idx].fire(this.x, this.y, - 1, jitter);
+			else
+				this.bullets[this.cur_bullet_idx].fire(this.x, this.y, 1, jitter);
+			
+			
+			this.shoot_cooldown = this.shoot_timer;
+			this.cur_bullet_idx ++;
+			if(this.cur_bullet_idx >= this.max_bullets)
+				this.cur_bullet_idx = 0;		
+		}
+	}
+	
+	if (keyboard.isKeyDown(keyboard.KEY_D))
+	{
+		if(right == false)
+		{
+			this.direction == RIGHT
+			this.sprite.setAnimation(ANIM_SHOOT_RIGHT);
 		}	
 		else if(right == true)
 		{
 			this.direction == RIGHT
 			this.sprite.setAnimation(ANIM_SHOOTWALK_RIGHT);
-		}
+		}	
 		if(this.shoot_cooldown <= 0)
 		{
 			if(!this.is_shoot_sfx_playing)
@@ -217,7 +251,6 @@ Player.prototype.update = function(deltaTime)
 			
 		}
 	}
-	
 	if(this.shoot_cooldown > 0)
 		this.shoot_cooldown -= deltaTime;
 	

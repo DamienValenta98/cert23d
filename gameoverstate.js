@@ -10,6 +10,7 @@ GameOverState.prototype.load = function()
 
 GameOverState.prototype.unload = function() 
 {
+
 }
 
 GameOverState.prototype.update = function(dt) 
