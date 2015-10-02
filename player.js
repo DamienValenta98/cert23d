@@ -126,9 +126,7 @@ var Player = function()
 		{
 			self.is_shoot_sfx_playing = false;
 		}
-		
-		
-		
+
 	});
 	
 }	
@@ -334,6 +332,12 @@ Player.prototype.update = function(deltaTime)
 }
 Player.prototype.draw = function(_cam_x, _cam_y)
 {
+	//score
+	context.fillStyle = "yellow";
+	context.font= "32px Arial";
+	var scoreText = "score:" + score;
+	context.fillText(scoreText, SCREEN_WIDTH - 170, 35);
+	
 	this.sprite.draw(context, this.x -_cam_x, this.y -_cam_y);
 	
 	for(var idx = 0; idx < this.lives; idx++)

@@ -13,6 +13,20 @@ heart.src = "heart.png"
 var score = 0;
 var lives = 3;
 
+var ENEMY_MAXDX = METER * 5;
+var ENEMY_ACCEL = ENEMY_MAXDX * 2;
+
+var enemies = [];
+
+var LAYER_COUNT = 3;
+var LAYER_BACKGROUND = 0;
+var LAYER_PLATFORMS = 1;
+var LAYER_LADDERS = 2;
+
+var LAYER_OBJECT_ENEMIES = 3;
+var LAYER_OBJECT_TRIGGERS = 4;
+
+
 
 function lerp(value, min, max)
 {
@@ -52,9 +66,30 @@ var fps = 0;
 var fpsCount = 0;
 var fpsTime = 0;
 
+enemies[0] = new Enemy();
+enemies.x = TILE * 10;
+enemies.y = TILE * 7;
+
+
 var return_cells = [];
 function initialize(input_level)
 {
+	//enemies
+	idx = 0;
+	for(var y = 0; y < level.layers[LAYER_OBJECT_ENEMIES].height; y++) 
+	{
+		for(var x = 0; x < level.layers[LAYER_OBJECT_ENEMIES].width; x++)
+		{
+			if(level.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0)
+			{
+				var px = tileToPixel(x);
+				var py = tileToPixel(y);
+				var e = new Enemy(px,py);
+				enemies.push(e);
+			}
+			idx++;
+		}
+	}
 	var return_cells = [];
 	
 	for (var layerIdx = 0; layerIdx < LAYER_COUNT; layerIdx++)
@@ -103,18 +138,23 @@ example_emitter.initialize(200, 200, 1, 0, 3000,  0.5, 100, 0.5, true);
 function run()
 {
 	
-	//score
-	context.fillStyle = "#ccc";
-	context.font= "50px Arial";
-	var scoreText = "Score:" + score;
-	context.fillText(scoreText, SCREEN_WIDTH - 170, 35);
+	for(var i=0; i < enemies.length; i++)
+	{
+		enemies[i].update(deltaTime);
+	}
 	
 	//lives
 	for (var i = 0; i < lives; i++)
 	{
 		context.drawImage(heart, 20 + ((heart.width+2)*i),10);
 	}
-	
+	if(this.lives < 0)
+	{
+		this.x = this.respawn_x;
+		this.y = this.respawn_y;
+		this.lives --;
+	}
+		
 	
 	context.fillStyle = "#ccc";
 	context.fillRect(0, 0, canvas.width, canvas.height);
@@ -146,6 +186,13 @@ function run()
 	
 	player.update(deltaTime);
 	player.draw(cam_x, cam_y);
+	
+	/*
+	for(var i=0; i < enemies.length; i++)
+	{
+		enemies[i].draw(cam_x, cam_y);
+	}
+	*/
 	
 	example_emitter.update(deltaTime);
 		example_emitter.draw(cam_x, cam_y);

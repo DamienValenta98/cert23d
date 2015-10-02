@@ -29,17 +29,15 @@ Bullet.prototype.fire = function(origin_x, origin_y, dir_x, dir_y)
 
 Bullet.prototype.update = function(deltaTime)
 {	
-		if (!this.isDead)
+	if(!this.isDead)
+	{
+		this.x += this.vel_x * deltaTime * BULLET_SPEED;
+		this.y += this.vel_y * deltaTime * BULLET_SPEED;
+		if(this.x < 0 || this.x > MAP.tw * TILE || this.y < 0 || this.y > MAP.th * TILE )
 		{
-			this.x += this.vel_x * deltaTime * BULLET_SPEED;
-			this.y += this.vel_y * deltaTime * BULLET_SPEED;
-			
-			if(this.x < 0 || this.x > MAP.tw * TILE || this.y < 0 
-							|| this.y > MAP.th * TILE )
-			{
-				this.isDead = true;
-			}
+			this.isDead = true;
 		}
+	}
 }
 
 Bullet.prototype.draw = function(_cam_x, _cam_y)
